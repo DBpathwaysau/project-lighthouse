@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Project Lighthouse — Laundry Prototype #3 v1</title>
+<style>
+:root{--bg:#dff7f2;--card:#fffdf8;--ink:#253238;--muted:#65767b;--accent:#16a6a1;--yellow:#f2c94c}
+*{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:linear-gradient(180deg,var(--bg),#f8fffd);color:var(--ink);display:flex;justify-content:center;align-items:center;padding:20px}
+.app{width:min(440px,100%)} .brand{text-align:center;font-weight:700;letter-spacing:.03em;color:#3b6366;margin-bottom:12px}
+.card{background:var(--card);border-radius:24px;box-shadow:0 10px 30px rgba(37,50,56,.12);padding:26px 22px 22px;min-height:610px;display:flex;flex-direction:column;justify-content:space-between}
+.screen{display:none}.screen.active{display:block;animation:fade .2s ease}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.emoji,.dance{text-align:center;font-size:74px;line-height:1;margin:12px 0}.dance{font-size:90px;animation:dance .55s infinite alternate ease-in-out;transform-origin:bottom center}@keyframes dance{from{transform:rotate(-7deg)}to{transform:rotate(7deg) translateY(-8px)}}
+h1,h2{text-align:center;margin:10px 0}h1{font-size:31px}h2{font-size:27px}
+p{text-align:center;color:var(--muted);font-size:18px;line-height:1.45;margin:10px 0 18px}.small{font-size:14px}
+.btns{display:grid;gap:12px;margin-top:18px}.chiprow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{width:100%;border:0;border-radius:18px;padding:16px 18px;font-size:18px;font-weight:700;cursor:pointer;background:var(--accent);color:white;box-shadow:0 5px 0 rgba(0,0,0,.07)}
+button.secondary{background:#fff;color:var(--ink);border:2px solid #dce9e6}button.yellow{background:var(--yellow);color:#3d3420}
+.progress{height:8px;background:#e9f1ef;border-radius:999px;overflow:hidden;margin-bottom:18px}.progress>div{height:100%;background:var(--accent);width:0;transition:width .2s}
+.bubble{background:#eef9f7;border-radius:18px;padding:14px 16px;margin:12px 0;text-align:center;color:#41666b}
+.timer{text-align:center;font-size:42px;font-weight:800;color:#2b696c}
+.testbar{margin-top:18px;padding-top:14px;border-top:1px dashed #d8e7e4}.testbar summary{text-align:center;color:#6a8588;font-size:14px;cursor:pointer}.testgrid{display:grid;gap:8px;margin-top:10px}.testgrid button{font-size:14px;padding:10px;background:#6d7f83}
+.footer{text-align:center;margin-top:14px;font-size:13px;color:#799095}
+</style>
+</head>
+<body>
+<main class="app">
+<div class="brand">PROJECT LIGHTHOUSE</div>
+<section class="card">
+<div>
+<div class="progress"><div id="bar"></div></div>
+
+<div class="screen active" data-screen="start">
+<div class="emoji">🧺</div><h1>Laundry</h1>
+<p>I’ll hold onto the washing so you don’t have to.</p>
+<div class="btns"><button onclick="go('running')">START</button></div>
+</div>
+
+<div class="screen" data-screen="running">
+<div class="emoji">🫧</div><h2>Washing machine running?</h2>
+<p>Make sure the load is actually started before we set the reminder.</p>
+<div class="btns"><button onclick="go('duration')">YES, IT’S RUNNING</button><button class="secondary" onclick="go('wait-start')">NOT YET</button></div>
+</div>
+
+<div class="screen" data-screen="wait-start">
+<div class="emoji">🙂</div><h2>No worries.</h2><p>Go start it. I’ll wait here.</p>
+<div class="btns"><button onclick="go('duration')">IT’S RUNNING NOW ✓</button></div>
+</div>
+
+<div class="screen" data-screen="duration">
+<div class="emoji">⏱️</div><h2>How long will this load take?</h2><p>Choose the closest option.</p>
+<div class="chiprow"><button onclick="setDuration(30)">30 MIN</button><button onclick="setDuration(60)">1 HOUR</button><button onclick="setDuration(120)">2 HOURS</button><button class="yellow" onclick="customDuration()">OTHER</button></div>
+</div>
+
+<div class="screen" data-screen="holding">
+<div class="emoji">🗼</div><h2>I’ve got it.</h2>
+<p id="holdingText">I’ll give you a heads up 10 minutes before it’s done, then remind you again when it finishes.</p>
+<div class="bubble">You can leave this task now. Lighthouse is holding the thread.</div>
+<div class="btns"><button onclick="go('holding-view')">DONE FOR NOW</button></div>
+</div>
+
+<div class="screen" data-screen="holding-view">
+<div class="emoji">🌊</div><h2>Task being held</h2><div class="timer" id="displayTime">60 min</div>
+<p class="small">Prototype v1 simulates reminder states. Real background notifications are the next technical step.</p>
+</div>
+
+<div class="screen" data-screen="ten">
+<div class="emoji">👋</div><h2>Heads up, Danielle</h2>
+<p>Your washing will be done in about 10 minutes. I’ll remind you then.</p>
+<div class="btns"><button onclick="go('holding-view')">GOT IT</button></div>
+</div>
+
+<div class="screen" data-screen="finished">
+<div class="emoji">🧺</div><h2>Hey Danielle, washing’s done.</h2><p>Ready for the next bit?</p>
+<div class="btns"><button onclick="go('next-step')">I’M ON IT</button><button class="yellow" onclick="go('ten-more')">GIVE ME 10 MINUTES</button></div>
+</div>
+
+<div class="screen" data-screen="ten-more">
+<div class="emoji">👍</div><h2>Got you.</h2><p>I’ll keep holding it for another 10 minutes.</p>
+<div class="btns"><button onclick="go('holding-view')">OKAY</button></div>
+</div>
+
+<div class="screen" data-screen="recovery">
+<div class="emoji">😄</div><h2>Hey Danielle — did the washing disappear?</h2><p>No stress. It’s still here.</p>
+<div class="btns"><button onclick="go('next-step')">I’LL CHECK IT NOW</button><button class="yellow" onclick="go('remind-later')">REMIND ME LATER</button></div>
+</div>
+
+<div class="screen" data-screen="remind-later">
+<div class="emoji">🗼</div><h2>Still holding it.</h2><p>You haven’t lost the task. We’ll come back to it.</p>
+<div class="btns"><button onclick="go('holding-view')">THANKS</button></div>
+</div>
+
+<div class="screen" data-screen="next-step">
+<div class="emoji">👕</div><h2>What’s next?</h2><p>Choose what happened with the washing.</p>
+<div class="btns"><button onclick="go('hang')">HANG IT OUT</button><button onclick="go('dryer-running')">PUT IT IN THE DRYER</button><button class="secondary" onclick="go('put-away')">READY TO PUT AWAY</button></div>
+</div>
+
+<div class="screen" data-screen="hang">
+<div class="emoji">🌤️</div><h2>Hang it out</h2><p>Get the washing onto the line or drying rack.</p>
+<div class="btns"><button onclick="go('put-away')">DONE ✓</button></div>
+</div>
+
+<div class="screen" data-screen="dryer-running">
+<div class="emoji">♨️</div><h2>Dryer running?</h2><p>Start the dryer, then I can hold the next part too.</p>
+<div class="btns"><button onclick="go('dryer-duration')">YES, IT’S RUNNING</button><button class="secondary" onclick="go('dryer-wait')">NOT YET</button></div>
+</div>
+
+<div class="screen" data-screen="dryer-wait">
+<div class="emoji">🙂</div><h2>No worries.</h2><p>Go start the dryer. I’ll stay here.</p>
+<div class="btns"><button onclick="go('dryer-duration')">IT’S RUNNING NOW ✓</button></div>
+</div>
+
+<div class="screen" data-screen="dryer-duration">
+<div class="emoji">⏱️</div><h2>How long will the dryer take?</h2>
+<div class="chiprow"><button onclick="setDryerDuration(30)">30 MIN</button><button onclick="setDryerDuration(60)">1 HOUR</button><button onclick="setDryerDuration(90)">90 MIN</button><button class="yellow" onclick="customDryer()">OTHER</button></div>
+</div>
+
+<div class="screen" data-screen="dryer-holding">
+<div class="emoji">🗼</div><h2>I’ve got the dryer too.</h2><p>I’ll give you the same heads-up and bring you back when it’s time.</p>
+<div class="btns"><button onclick="go('dryer-holding-view')">DONE FOR NOW</button></div>
+</div>
+
+<div class="screen" data-screen="dryer-holding-view">
+<div class="emoji">♨️</div><h2>Dryer task being held</h2><div class="timer" id="dryerDisplay">60 min</div>
+<p class="small">Use the testing controls below to simulate the alerts.</p>
+</div>
+
+<div class="screen" data-screen="dryer-finished">
+<div class="emoji">👕</div><h2>Dryer should be done.</h2><p>Let’s close the loop while it’s here.</p>
+<div class="btns"><button onclick="go('put-away')">GET THE WASHING OUT</button><button class="yellow" onclick="go('dryer-ten-more')">GIVE ME 10 MINUTES</button></div>
+</div>
+
+<div class="screen" data-screen="dryer-ten-more">
+<div class="emoji">👍</div><h2>Okay.</h2><p>I’ll keep holding this bit too.</p>
+<div class="btns"><button onclick="go('dryer-holding-view')">THANKS</button></div>
+</div>
+
+<div class="screen" data-screen="put-away">
+<div class="emoji">🧦</div><h2>Last bit.</h2><p>Get the clean washing where it belongs.</p>
+<div class="bubble">This is where we close the whole loop — not just finish the machine cycle.</div>
+<div class="btns"><button onclick="finishLaundry()">IT’S PUT AWAY ✓</button></div>
+</div>
+
+<div class="screen" data-screen="done">
+<div class="dance">🕺</div><h1>GO YOU LEGEND!</h1><p>The whole laundry loop is closed. Nothing left hanging around in your brain.</p>
+<div class="btns"><button onclick="resetApp()">FINISH</button></div>
+</div>
+
+</div>
+<details class="testbar">
+<summary>Prototype testing controls</summary>
+<div class="testgrid">
+<button onclick="go('ten')">Simulate 10-minute warning</button>
+<button onclick="go('finished')">Simulate washer finished</button>
+<button onclick="go('recovery')">Simulate 3-hour recovery</button>
+<button onclick="go('dryer-finished')">Simulate dryer finished</button>
+</div>
+</details>
+</section>
+<div class="footer">Project Lighthouse • Laundry Prototype #3 v1</div>
+</main>
+
+<script>
+let duration=60, dryerDuration=60;
+const order=['start','running','wait-start','duration','holding','holding-view','ten','finished','ten-more','recovery','remind-later','next-step','hang','dryer-running','dryer-wait','dryer-duration','dryer-holding','dryer-holding-view','dryer-finished','dryer-ten-more','put-away','done'];
+
+function go(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.querySelector(`[data-screen="${name}"]`);
+  if(el) el.classList.add('active');
+  const idx=Math.max(0,order.indexOf(name));
+  document.getElementById('bar').style.width=((idx/(order.length-1))*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function setDuration(min){
+  duration=min;
+  document.getElementById('displayTime').textContent=min+' min';
+  document.getElementById('holdingText').textContent=`I’ll give you a heads up 10 minutes before this ${min}-minute load is done, then remind you again when it finishes.`;
+  go('holding');
+}
+function customDuration(){
+  const n=parseInt(prompt('How many minutes will this load take?','45'),10);
+  if(n>0) setDuration(n);
+}
+function setDryerDuration(min){
+  dryerDuration=min;
+  document.getElementById('dryerDisplay').textContent=min+' min';
+  go('dryer-holding');
+}
+function customDryer(){
+  const n=parseInt(prompt('How many minutes will the dryer take?','60'),10);
+  if(n>0) setDryerDuration(n);
+}
+function finishLaundry(){
+  go('done');
+  if(navigator.vibrate) navigator.vibrate([40,40,70]);
+}
+function resetApp(){duration=60;dryerDuration=60;go('start');}
+</script>
+</body>
+</html>
