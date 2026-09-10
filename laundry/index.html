@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Project Lighthouse — Laundry Prototype #3 v1</title>
+
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "8a081983-9db8-411b-a922-301fc7e96143",
+    });
+  });
+</script>
 <style>
 :root{--bg:#dff7f2;--card:#fffdf8;--ink:#253238;--muted:#65767b;--accent:#16a6a1;--yellow:#f2c94c}
 *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:linear-gradient(180deg,var(--bg),#f8fffd);color:var(--ink);display:flex;justify-content:center;align-items:center;padding:20px}
