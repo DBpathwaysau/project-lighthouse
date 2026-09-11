@@ -93,20 +93,6 @@ button.secondary{background:#fff;color:var(--ink);border:2px solid #dce9e6}butto
     </div>
   </div>
 </div>
-  
-<div id="reminderSetup" class="user-picker">
-  <div class="user-picker-card">
-    <div class="emoji">🔔</div>
-    <h1>Turn on laundry reminders?</h1>
-    <p>Lighthouse can let you know when your washing is nearly finished and when it's done.</p>
-
-    <div class="user-grid">
-      <button onclick="enableReminders()">Turn on reminders</button>
-      <button class="secondary" onclick="skipReminders()">Not now</button>
-    </div>
-  </div>
-</div>
-
 <main class="app">
 <div class="brand">PROJECT LIGHTHOUSE</div>
 <section class="card">
@@ -287,39 +273,13 @@ function resetApp(){duration=60;dryerDuration=60;go('start');}
   });
 
   document.getElementById("userPicker").style.display = "none";
-  document.getElementById("reminderSetup").style.display = "flex";  
-}
-  async function enableReminders() {
-  OneSignalDeferred.push(async function(OneSignal) {
-    const supported = OneSignal.Notifications.isPushSupported();
-
-    if (!supported) {
-      alert("Push reminders aren't supported on this browser.");
-      return;
-    }
-
-    await OneSignal.User.PushSubscription.optIn();
-
-    if (OneSignal.User.PushSubscription.optedIn) {
-      document.getElementById("reminderSetup").style.display = "none";
-    }
-  });
 }
 
-function skipReminders() {
-  document.getElementById("reminderSetup").style.display = "none";
-}
 window.addEventListener("DOMContentLoaded", function() {
   const savedUser = localStorage.getItem("lighthouse_user");
 
   if (!savedUser) {
     document.getElementById("userPicker").style.display = "flex";
-    return;
-  }
-
-  OneSignalDeferred.push(async function(OneSignal) {
-    if (!OneSignal.User.PushSubscription.optedIn) {
-      document.getElementById("reminderSetup").style.display = "flex";
   }
 });
 </script>
