@@ -241,10 +241,31 @@ function go(name){
   document.getElementById('bar').style.width=((idx/(order.length-1))*100)+'%';
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function setDuration(min){
+async function setDuration(min){
   duration=min;
+
   document.getElementById('displayTime').textContent=min+' min';
-  document.getElementById('holdingText').textContent=`I’ll give you a heads up 10 minutes before this ${min}-minute load is done, then remind you again when it finishes.`;
+  document.getElementById('holdingText').textContent=
+    `I'll remind you when this ${min}-minute load is done.`;
+
+  const user = localStorage.getItem("lighthouse_user");
+
+  try {
+    await fetch("https://lighthouse-worker.danielle-64a.workers.dev/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "laundry_started",
+        user: user,
+        minutes: min
+      })
+    });
+  } catch (error) {
+    console.error("Lighthouse reminder request failed:", error);
+  }
+
   go('holding');
 }
 function customDuration(){
