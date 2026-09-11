@@ -8,11 +8,17 @@
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
+
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "8a081983-9db8-411b-a922-301fc7e96143",
     });
-      await OneSignal.login("danielle");
+
+    const savedUser = localStorage.getItem("lighthouse_user");
+
+    if (savedUser) {
+      await OneSignal.login(savedUser);
+    }
   });
 </script>
 <style>
@@ -32,9 +38,61 @@ button.secondary{background:#fff;color:var(--ink);border:2px solid #dce9e6}butto
 .timer{text-align:center;font-size:42px;font-weight:800;color:#2b696c}
 .testbar{margin-top:18px;padding-top:14px;border-top:1px dashed #d8e7e4}.testbar summary{text-align:center;color:#6a8588;font-size:14px;cursor:pointer}.testgrid{display:grid;gap:8px;margin-top:10px}.testgrid button{font-size:14px;padding:10px;background:#6d7f83}
 .footer{text-align:center;margin-top:14px;font-size:13px;color:#799095}
+  .user-picker{
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+}
+
+.user-picker-card{
+  width:min(420px,100%);
+  background:var(--card);
+  border-radius:24px;
+  padding:28px 22px;
+  box-shadow:0 10px 30px rgba(37,50,56,.12);
+  text-align:center;
+}
+
+.user-picker-card .emoji{
+  font-size:64px;
+  margin-bottom:8px;
+}
+
+.user-picker-card p{
+  margin-bottom:20px;
+}
+
+.user-grid{
+  display:grid;
+  gap:10px;
+}
+
+.user-grid button{
+  width:100%;
+}
 </style>
 </head>
 <body>
+  <div id="userPicker" class="user-picker">
+  <div class="user-picker-card">
+    <div class="emoji">👋</div>
+    <h1>Who is using Lighthouse?</h1>
+    <p>Choose your name once. This device will remember you.</p>
+
+    <div class="user-grid">
+      <button onclick="chooseUser('danielle')">Danielle</button>
+      <button onclick="chooseUser('alexy')">Alexy</button>
+      <button onclick="chooseUser('kaelen')">Kaelen</button>
+      <button onclick="chooseUser('tamika')">Tamika</button>
+      <button onclick="chooseUser('craig')">Craig</button>
+    </div>
+  </div>
+</div>
 <main class="app">
 <div class="brand">PROJECT LIGHTHOUSE</div>
 <section class="card">
@@ -207,6 +265,23 @@ function finishLaundry(){
   if(navigator.vibrate) navigator.vibrate([40,40,70]);
 }
 function resetApp(){duration=60;dryerDuration=60;go('start');}
+  async function chooseUser(user) {
+  localStorage.setItem("lighthouse_user", user);
+
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.login(user);
+  });
+
+  document.getElementById("userPicker").style.display = "none";
+}
+
+window.addEventListener("DOMContentLoaded", function() {
+  const savedUser = localStorage.getItem("lighthouse_user");
+
+  if (!savedUser) {
+    document.getElementById("userPicker").style.display = "flex";
+  }
+});
 </script>
 </body>
 </html>
