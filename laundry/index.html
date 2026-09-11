@@ -315,6 +315,8 @@ window.addEventListener("DOMContentLoaded", function() {
 
   if (!savedUser) {
     document.getElementById("userPicker").style.display = "flex";
+  } else if (Notification.permission !== "granted") {
+    document.getElementById("reminderSetup").style.display = "flex";
   }
 });
 </script>
