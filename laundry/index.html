@@ -289,19 +289,18 @@ function resetApp(){duration=60;dryerDuration=60;go('start');}
   document.getElementById("userPicker").style.display = "none";
   document.getElementById("reminderSetup").style.display = "flex";  
 }
-async function enableReminders() {
+  async function enableReminders() {
   OneSignalDeferred.push(async function(OneSignal) {
-    if (!OneSignal.Notifications.isPushSupported()) {
+    const supported = OneSignal.Notifications.isPushSupported();
+
+    if (!supported) {
       alert("Push reminders aren't supported on this browser.");
       return;
     }
 
-    if (!OneSignal.Notifications.permission) {
-      await OneSignal.Notifications.requestPermission();
-    }
+    await OneSignal.User.PushSubscription.optIn();
 
-    if (OneSignal.Notifications.permission) {
-      await OneSignal.User.PushSubscription.optIn();
+    if (OneSignal.User.PushSubscription.optedIn) {
       document.getElementById("reminderSetup").style.display = "none";
     }
   });
@@ -315,8 +314,12 @@ window.addEventListener("DOMContentLoaded", function() {
 
   if (!savedUser) {
     document.getElementById("userPicker").style.display = "flex";
-  } else if (Notification.permission !== "granted") {
-    document.getElementById("reminderSetup").style.display = "flex";
+    return;
+  }
+
+  OneSignalDeferred.push(async function(OneSignal) {
+    if (!OneSignal.User.PushSubscription.optedIn) {
+      document.getElementById("reminderSetup").style.display = "flex";
   }
 });
 </script>
