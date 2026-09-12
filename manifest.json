@@ -1,0 +1,11 @@
+{
+  "id": "/project-lighthouse/",
+  "name": "Project Lighthouse",
+  "short_name": "Lighthouse",
+  "description": "Executive function support for everyday tasks.",
+  "start_url": "/project-lighthouse/laundry/",
+  "scope": "/project-lighthouse/",
+  "display": "standalone",
+  "background_color": "#dff7f2",
+  "theme_color": "#16a6a1"
+}
