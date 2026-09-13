@@ -154,13 +154,13 @@ button.secondary{background:#fff;color:var(--ink);border:2px solid #dce9e6}butto
 </div>
 
 <div class="screen" data-screen="ten">
-<div class="emoji">👋</div><h2>Heads up, Danielle</h2>
+<div class="emoji">👋</div><h2>Heads up, <span class="user-name">friend</span></h2>
 <p>Your washing will be done in about 10 minutes. I’ll remind you then.</p>
 <div class="btns"><button onclick="go('holding-view')">GOT IT</button></div>
 </div>
 
 <div class="screen" data-screen="finished">
-<div class="emoji">🧺</div><h2>Hey Danielle, washing’s done.</h2><p>Ready for the next bit?</p>
+<div class="emoji">🧺</div><h2>Hey <span class="user-name">friend</span>, washing’s done.</h2><p>Ready for the next bit?</p>
 <div class="btns"><button onclick="go('next-step')">I’M ON IT</button><button class="yellow" onclick="go('ten-more')">GIVE ME 10 MINUTES</button></div>
 </div>
 
@@ -170,7 +170,7 @@ button.secondary{background:#fff;color:var(--ink);border:2px solid #dce9e6}butto
 </div>
 
 <div class="screen" data-screen="recovery">
-<div class="emoji">😄</div><h2>Hey Danielle — did the washing disappear?</h2><p>No stress. It’s still here.</p>
+<div class="emoji">😄</div><h2>Hey <span class="user-name">friend</span> — did the washing disappear?</h2><p>No stress. It’s still here.</p>
 <div class="btns"><button onclick="go('next-step')">I’LL CHECK IT NOW</button><button class="yellow" onclick="go('remind-later')">REMIND ME LATER</button></div>
 </div>
 
@@ -306,8 +306,17 @@ function finishLaundry(){
   if(navigator.vibrate) navigator.vibrate([40,40,70]);
 }
 function resetApp(){duration=60;dryerDuration=60;go('start');}
+
+  function updateUserName(user) {
+  const displayName = user.charAt(0).toUpperCase() + user.slice(1);
+
+  document.querySelectorAll(".user-name").forEach(el => {
+    el.textContent = displayName;
+  });
+}
   async function chooseUser(user) {
   localStorage.setItem("lighthouse_user", user);
+  updateUserName(user);
 
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.login(user);
@@ -350,6 +359,9 @@ function skipReminders() {
   
 window.addEventListener("DOMContentLoaded", function() {
   const savedUser = localStorage.getItem("lighthouse_user");
+  if (savedUser) {
+  updateUserName(savedUser);
+}
 
   if (!savedUser) {
     document.getElementById("userPicker").style.display = "flex";
