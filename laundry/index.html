@@ -368,6 +368,8 @@ function skipReminders() {
 }
   
 window.addEventListener("DOMContentLoaded", function() {
+  const params = new URLSearchParams(window.location.search);
+const requestedScreen = params.get("screen");
   const savedUser = localStorage.getItem("lighthouse_user");
  const savedScreen = localStorage.getItem("lighthouse_laundry_screen");
   const savedDuration = localStorage.getItem("lighthouse_laundry_duration");
@@ -383,11 +385,14 @@ if (savedDryerDuration) {
   document.getElementById("dryerDisplay").textContent = dryerDuration + " min";
 }
 
-  if (savedScreen && order.includes(savedScreen)) {
-    go(savedScreen);
-  }
-
-  if (!savedUser) {
+  if (requestedScreen && order.includes(requestedScreen)) {
+  go(requestedScreen);
+    window.history.replaceState({}, document.title, window.location.pathname);
+} else if (savedScreen && order.includes(savedScreen)) {
+  go(savedScreen);
+}
+  
+    if (!savedUser) {
     document.getElementById("userPicker").style.display = "flex";
     return;
   }
