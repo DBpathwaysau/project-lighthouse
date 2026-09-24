@@ -264,6 +264,7 @@ function go(name){
 }
 async function setDuration(min){
   duration=min;
+  localStorage.setItem("lighthouse_laundry_duration", min);
 
   document.getElementById('displayTime').textContent=min+' min';
   document.getElementById('holdingText').textContent=
@@ -295,6 +296,7 @@ function customDuration(){
 }
 function setDryerDuration(min){
   dryerDuration=min;
+   localStorage.setItem("lighthouse_laundry_dryer_duration", min);
   document.getElementById('dryerDisplay').textContent=min+' min';
   go('dryer-holding');
 }
@@ -310,6 +312,8 @@ function resetApp(){
   duration=60;
   dryerDuration=60;
   localStorage.removeItem("lighthouse_laundry_screen");
+   localStorage.removeItem("lighthouse_laundry_duration");
+  localStorage.removeItem("lighthouse_laundry_dryer_duration");
   go('start');
 }
 
@@ -366,6 +370,18 @@ function skipReminders() {
 window.addEventListener("DOMContentLoaded", function() {
   const savedUser = localStorage.getItem("lighthouse_user");
  const savedScreen = localStorage.getItem("lighthouse_laundry_screen");
+  const savedDuration = localStorage.getItem("lighthouse_laundry_duration");
+const savedDryerDuration = localStorage.getItem("lighthouse_laundry_dryer_duration");
+
+if (savedDuration) {
+  duration = parseInt(savedDuration, 10);
+  document.getElementById("displayTime").textContent = duration + " min";
+}
+
+if (savedDryerDuration) {
+  dryerDuration = parseInt(savedDryerDuration, 10);
+  document.getElementById("dryerDisplay").textContent = dryerDuration + " min";
+}
 
   if (savedScreen && order.includes(savedScreen)) {
     go(savedScreen);
