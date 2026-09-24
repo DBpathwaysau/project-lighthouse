@@ -384,7 +384,9 @@ if (savedDryerDuration) {
   dryerDuration = parseInt(savedDryerDuration, 10);
   document.getElementById("dryerDisplay").textContent = dryerDuration + " min";
 }
-
+if (savedUser) {
+  updateUserName(savedUser);
+}
   if (requestedScreen && order.includes(requestedScreen)) {
   go(requestedScreen);
     window.history.replaceState({}, document.title, window.location.pathname);
