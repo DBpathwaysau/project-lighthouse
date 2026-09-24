@@ -254,6 +254,7 @@ let duration=60, dryerDuration=60;
 const order=['start','running','wait-start','duration','holding','holding-view','ten','finished','ten-more','recovery','remind-later','next-step','hang','dryer-running','dryer-wait','dryer-duration','dryer-holding','dryer-holding-view','dryer-finished','dryer-ten-more','put-away','done'];
 
 function go(name){
+  localStorage.setItem("lighthouse_laundry_screen", name);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.querySelector(`[data-screen="${name}"]`);
   if(el) el.classList.add('active');
@@ -305,7 +306,12 @@ function finishLaundry(){
   go('done');
   if(navigator.vibrate) navigator.vibrate([40,40,70]);
 }
-function resetApp(){duration=60;dryerDuration=60;go('start');}
+function resetApp(){
+  duration=60;
+  dryerDuration=60;
+  localStorage.removeItem("lighthouse_laundry_screen");
+  go('start');
+}
 
   function updateUserName(user) {
   const displayName = user.charAt(0).toUpperCase() + user.slice(1);
@@ -359,9 +365,11 @@ function skipReminders() {
   
 window.addEventListener("DOMContentLoaded", function() {
   const savedUser = localStorage.getItem("lighthouse_user");
-  if (savedUser) {
-  updateUserName(savedUser);
-}
+ const savedScreen = localStorage.getItem("lighthouse_laundry_screen");
+
+  if (savedScreen && order.includes(savedScreen)) {
+    go(savedScreen);
+  }
 
   if (!savedUser) {
     document.getElementById("userPicker").style.display = "flex";
