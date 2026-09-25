@@ -294,10 +294,27 @@ function customDuration(){
   const n=parseInt(prompt('How many minutes will this load take?','45'),10);
   if(n>0) setDuration(n);
 }
-function setDryerDuration(min){
-  dryerDuration=min;
+async function setDryerDuration(min){
+    dryerDuration=min;
    localStorage.setItem("lighthouse_laundry_dryer_duration", min);
   document.getElementById('dryerDisplay').textContent=min+' min';
+  const user = localStorage.getItem("lighthouse_user");
+
+try {
+  await fetch("https://lighthouse-worker.danielle-64a.workers.dev/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      action: "dryer_started",
+      user: user,
+      minutes: min
+    })
+  });
+} catch (error) {
+  console.error("Lighthouse dryer reminder request failed:", error);
+}
   go('dryer-holding');
 }
 function customDryer(){
