@@ -166,7 +166,7 @@ button.secondary{background:#fff;color:var(--ink);border:2px solid #dce9e6}butto
 
 <div class="screen" data-screen="ten-more">
 <div class="emoji">👍</div><h2>Got you.</h2><p>I’ll keep holding it for another 10 minutes.</p>
-<div class="btns"><button onclick="go('holding-view')">OKAY</button></div>
+<div class="btns"><button onclick="snoozeLaundry()">OKAY</button>
 </div>
 
 <div class="screen" data-screen="recovery">
@@ -324,6 +324,31 @@ function customDryer(){
 function finishLaundry(){
   go('done');
   if(navigator.vibrate) navigator.vibrate([40,40,70]);
+}
+  async function snoozeLaundry(){
+  duration = 10;
+  localStorage.setItem("lighthouse_laundry_duration", 10);
+  document.getElementById('displayTime').textContent = '10 min';
+
+  const user = localStorage.getItem("lighthouse_user");
+
+  try {
+    await fetch("https://lighthouse-worker.danielle-64a.workers.dev/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "laundry_snooze",
+        user: user,
+        minutes: 10
+      })
+    });
+  } catch (error) {
+    console.error("Lighthouse snooze reminder request failed:", error);
+  }
+
+  go('holding-view');
 }
 function resetApp(){
   duration=60;
